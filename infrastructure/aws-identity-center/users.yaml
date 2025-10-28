@@ -1,0 +1,19 @@
+---
+# Standalone users (not part of any group initially)
+# These users can be assigned to groups or used independently
+users:
+  - first_name: "Sarah"
+    last_name: "Connor"
+    email: "sarah.connor@supdevinci.fr"
+    department: "IT"
+    job_title: "Security Specialist"
+  - first_name: "John"
+    last_name: "Doe"
+    email: "john.doe@supdevinci.fr"
+    department: "Education"
+    job_title: "Teacher"
+  - first_name: "Jane"
+    last_name: "Smith"
+    email: "jane.smith@supdevinci.fr"
+    department: "HR"
+    job_title: "HR Manager"

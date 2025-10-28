@@ -1,0 +1,68 @@
+---
+# Groups with their members
+# Each group contains a list of users who belong to it
+groups:
+  - group_name: "education_department"
+    name: "Education Department"
+    description: "All members of the Education Department"
+    users:
+      - first_name: "Junior"
+        last_name: "Hassas"
+        email: "junior.hassas@supdevinci.fr"
+        department: "Education"
+        job_title: "Manager"
+      - first_name: "Mohammed"
+        last_name: "Yaya"
+        email: "mohammed.yaya@supdevinci.fr"
+        department: "Education"
+        job_title: "Engineer"
+      - first_name: "Armel"
+        last_name: "Toure"
+        email: "armel.toure@supdevinci.fr"
+        department: "Education"
+        job_title: "Engineer"
+
+  - group_name: "education_managers"
+    name: "Education - Managers"
+    description: "Managers in the Education Department"
+    users:
+      - first_name: "Sarah"
+        last_name: "Wilson"
+        email: "sarah.wilson@supdevinci.fr"
+        department: "Education"
+        job_title: "Senior Manager"
+
+  - group_name: "education_engineers"
+    name: "Education - Engineers"
+    description: "Engineers in the Education Department"
+    users:
+      - first_name: "Thomas"
+        last_name: "Bernard"
+        email: "thomas.bernard@supdevinci.fr"
+        department: "Education"
+        job_title: "Senior Engineer"
+
+  - group_name: "it_department"
+    name: "IT Department"
+    description: "Information Technology Department members"
+    users:
+      - first_name: "Dwight"
+        last_name: "Schrute"
+        email: "dwight.schrute@supdevinci.fr"
+        department: "IT"
+        job_title: "Senior Engineer"
+      - first_name: "Angela"
+        last_name: "Martin"
+        email: "angela.martin@supdevinci.fr"
+        department: "IT"
+        job_title: "DevOps Engineer"
+
+  - group_name: "administrators"
+    name: "System Administrators"
+    description: "Users with administrative privileges"
+    users:
+      - first_name: "Kevin"
+        last_name: "Malone"
+        email: "kevin.malone@supdevinci.fr"
+        department: "IT"
+        job_title: "System Administrator"
