@@ -1,0 +1,20 @@
+---
+- name: Install Keycloak
+  hosts: keycloak
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Debug group membership
+      ansible.builtin.debug:
+        var: group_names
+    - name: Debug keycloak_data_dir
+      ansible.builtin.debug:
+        msg: "keycloak_data_dir={{ keycloak_data_dir | default('UNDEFINED') }}"
+
+  tasks:
+    - name: Include Keycloak role
+      ansible.builtin.include_role:
+        name: keycloak
+      tags:
+        - install

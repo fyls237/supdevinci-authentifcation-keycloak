@@ -1,0 +1,47 @@
+[Unit]
+Description=Keycloak Application Server
+After=network.target postgresql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User={{ keycloak_service_user }}
+Group={{ keycloak_service_group }}
+
+# Admin credentials
+Environment="KEYCLOAK_ADMIN={{ keycloak_admin_user }}"
+Environment="KEYCLOAK_ADMIN_PASSWORD={{ keycloak_admin_password }}"
+
+# Java options
+Environment="JAVA_OPTS={{ keycloak_java_opts }}"
+
+# Keycloak configuration
+Environment="KC_HTTP_ENABLED=true"
+Environment="KC_HOSTNAME={{ keycloak_hostname }}"
+Environment="KC_HOSTNAME_STRICT={{ keycloak_hostname_strict | lower }}"
+{% if keycloak_enable_ssl | default(true) | bool %}
+Environment="KC_HOSTNAME_STRICT_HTTPS=true"
+Environment="KC_HTTPS_KEY_STORE_FILE={{ keycloak_install_dir }}/conf/ssl/keycloak.p12"
+Environment="KC_HTTPS_KEY_STORE_PASSWORD={{ keycloak_keystore_password }}"
+Environment="KC_HTTPS_KEY_STORE_TYPE=PKCS12"
+{% else %}
+Environment="KC_HOSTNAME_STRICT_HTTPS=false"
+Environment="KC_HOSTNAME_STRICT_BACKCHANNEL=false"
+{% endif %}
+Environment="KC_PROXY=edge"
+Environment="KC_HEALTH_ENABLED=true"
+Environment="KC_METRICS_ENABLED=true"
+
+WorkingDirectory={{ keycloak_install_dir }}
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start --optimized
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=keycloak
+
+SuccessExitStatus=0 143
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,41 @@
+---
+- name: Update system packages
+  ansible.builtin.yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+  tags: prerequisites
+
+- name: Install required packages
+  ansible.builtin.yum:
+    name: "{{ required_packages }}"
+    state: present
+  tags: prerequisites
+
+- name: Install Python packages
+  ansible.builtin.pip:
+    name: "{{ python_packages }}"
+    state: present
+  tags: prerequisites
+
+- name: Create Keycloak service user
+  ansible.builtin.user:
+    name: "{{ keycloak_service_user }}"
+    system: yes
+    shell: /sbin/nologin
+    home: "{{ keycloak_install_dir }}"
+    create_home: no
+  tags: prerequisites
+
+- name: Create Keycloak directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    mode: '0755'
+  loop:
+    - "{{ keycloak_install_dir }}"
+    - "{{ keycloak_data_dir }}"
+    - "{{ keycloak_log_dir }}"
+  tags: prerequisites

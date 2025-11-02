@@ -1,0 +1,33 @@
+plugin: amazon.aws.aws_ec2
+
+regions:
+  - eu-north-1
+
+profile: loicsteve
+
+filters:
+  tag:Project: "Keycloak Deployment"
+  tag:Environment: "production"
+  instance-state-name: running
+
+keyed_groups:
+  - key: tags.Name
+    prefix: tag_name
+  - key: tags.Application
+    prefix: app
+  - key: tags.Application
+    prefix: ""
+  - key: placement.availability_zone
+    prefix: az
+
+groups:
+  keycloak: tags.Application is defined and (tags.Application | lower) == 'keycloak'
+
+hostnames:
+  - tag:Name
+  - dns-name
+  - private-ip-address
+
+compose:
+  ansible_host: public_ip_address
+  ansible_user: ec2-user

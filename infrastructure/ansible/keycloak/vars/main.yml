@@ -1,0 +1,15 @@
+---
+# vars file for keycloak
+required_packages:
+  - "{{ java_package }}"
+  - unzip
+  - tar
+  - wget
+  - postgresql15
+  - python3-pip
+  - python3-psycopg2
+
+# Python packages
+python_packages:
+  - boto3
+  - botocore

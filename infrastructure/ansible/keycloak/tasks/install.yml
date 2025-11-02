@@ -1,0 +1,39 @@
+---
+- name: Check if Keycloak is already installed
+  ansible.builtin.stat:
+    path: "{{ keycloak_install_dir }}/bin/kc.sh"
+  register: keycloak_installed
+  tags: install
+
+- name: Download Keycloak
+  ansible.builtin.get_url:
+    url: "{{ keycloak_download_url }}"
+    dest: "/tmp/{{ keycloak_archive }}"
+    mode: '0644'
+  when: not keycloak_installed.stat.exists
+  tags: install
+
+- name: Extract Keycloak archive
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ keycloak_archive }}"
+    dest: "{{ keycloak_install_dir }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+  when: not keycloak_installed.stat.exists
+  tags: install
+
+- name: Clean up downloaded archive
+  ansible.builtin.file:
+    path: "/tmp/{{ keycloak_archive }}"
+    state: absent
+  tags: install
+
+- name: Set Keycloak directory permissions
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}"
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    recurse: yes
+  tags: install

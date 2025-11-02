@@ -1,0 +1,36 @@
+keycloak_version: "26.4.0"
+keycloak_archive: "keycloak-{{ keycloak_version }}.tar.gz"
+keycloak_download_url: "https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/{{ keycloak_archive }}"
+
+keycloak_install_dir: /opt/keycloak
+keycloak_config_dir: "{{ keycloak_install_dir }}/conf"
+keycloak_data_dir: /var/lib/keycloak
+keycloak_log_dir: /var/log/keycloak
+
+keycloak_service_user: keycloak
+keycloak_service_group: keycloak
+keycloak_http_port: 8080
+keycloak_https_port: 8443
+keycloak_management_port: 9990
+keycloak_https_required: false
+keycloak_ssl_required: false
+
+keycloak_admin_user: admin
+keycloak_admin_password: "{{ lookup('env', 'KEYCLOAK_ADMIN_PASSWORD') | default('ChangeMe123!', true) }}"
+
+keycloak_db_vendor: postgres
+keycloak_db_host: "{{ db_endpoint }}"
+keycloak_db_port: 5432
+keycloak_db_name: "{{ db_name }}"
+keycloak_db_username: "{{ db_username }}"
+keycloak_db_password: "{{ db_password }}"
+
+keycloak_java_opts: "-Xms512m -Xmx2048m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m"
+
+# Hostname configuration
+keycloak_hostname: "{{ ansible_host }}"
+keycloak_hostname_strict: true
+
+# SSL Configuration
+keycloak_enable_ssl: true
+keycloak_keystore_password: "{{ lookup('env', 'KEYCLOAK_KEYSTORE_PASSWORD') | default('KeystoreSecure123!', true) }}"

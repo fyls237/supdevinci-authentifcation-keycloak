@@ -1,0 +1,99 @@
+---
+- name: Install OpenSSL
+  ansible.builtin.yum:
+    name: openssl
+    state: present
+  tags: ssl
+
+- name: Create SSL directory
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/conf/ssl"
+    state: directory
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    mode: '0750'
+  tags: ssl
+
+- name: Check if keystore already exists
+  ansible.builtin.stat:
+    path: "{{ keycloak_install_dir }}/conf/ssl/keycloak.p12"
+  register: keystore_exists
+  tags: ssl
+
+- name: Generate private key
+  ansible.builtin.command:
+    cmd: >
+      openssl genrsa -out {{ keycloak_install_dir }}/conf/ssl/keycloak-private.key 2048
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Set permissions on private key
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/conf/ssl/keycloak-private.key"
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    mode: '0600'
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Generate certificate signing request
+  ansible.builtin.command:
+    cmd: >
+      openssl req -new 
+      -key {{ keycloak_install_dir }}/conf/ssl/keycloak-private.key
+      -out {{ keycloak_install_dir }}/conf/ssl/keycloak.csr
+      -subj "/C=FR/ST=IDF/L=Paris/O=SupDeVinci/OU=IT/CN={{ keycloak_hostname }}"
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Generate self-signed certificate (valid for 365 days)
+  ansible.builtin.command:
+    cmd: >
+      openssl x509 -req -days 365
+      -in {{ keycloak_install_dir }}/conf/ssl/keycloak.csr
+      -signkey {{ keycloak_install_dir }}/conf/ssl/keycloak-private.key
+      -out {{ keycloak_install_dir }}/conf/ssl/keycloak-cert.pem
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Set permissions on certificate
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/conf/ssl/keycloak-cert.pem"
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    mode: '0644'
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Create PKCS12 keystore from certificate and key
+  ansible.builtin.shell: |
+    openssl pkcs12 -export \
+      -in {{ keycloak_install_dir }}/conf/ssl/keycloak-cert.pem \
+      -inkey {{ keycloak_install_dir }}/conf/ssl/keycloak-private.key \
+      -out {{ keycloak_install_dir }}/conf/ssl/keycloak.p12 \
+      -name keycloak \
+      -passout pass:{{ keycloak_keystore_password }}
+  args:
+    creates: "{{ keycloak_install_dir }}/conf/ssl/keycloak.p12"
+  when: not keystore_exists.stat.exists
+  tags: ssl
+
+- name: Set correct permissions on keystore
+  ansible.builtin.file:
+    path: "{{ keycloak_install_dir }}/conf/ssl/keycloak.p12"
+    owner: "{{ keycloak_service_user }}"
+    group: "{{ keycloak_service_group }}"
+    mode: '0600'
+  tags: ssl
+
+- name: Display SSL certificate information
+  ansible.builtin.command:
+    cmd: openssl x509 -in {{ keycloak_install_dir }}/conf/ssl/keycloak-cert.pem -noout -subject -dates
+  register: cert_info
+  changed_when: false
+  tags: ssl
+
+- name: Show certificate details
+  ansible.builtin.debug:
+    msg: "{{ cert_info.stdout_lines }}"
+  tags: ssl

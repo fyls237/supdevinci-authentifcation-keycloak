@@ -1,0 +1,55 @@
+# Basic settings
+hostname={{ keycloak_hostname }}
+hostname-strict={{ keycloak_hostname_strict | lower }}
+{% if keycloak_enable_ssl | default(true) | bool %}
+hostname-strict-https=true
+{% else %}
+hostname-strict-https=false
+hostname-strict-backchannel=false
+{% endif %}
+
+# HTTP settings
+http-enabled=true
+http-port={{ keycloak_http_port }}
+
+# HTTPS settings
+https-port={{ keycloak_https_port }}
+{% if keycloak_enable_ssl | default(true) | bool %}
+https-key-store-file={{ keycloak_install_dir }}/conf/ssl/keycloak.p12
+https-key-store-password={{ keycloak_keystore_password }}
+https-key-store-type=PKCS12
+{% endif %}
+
+# Proxy configuration
+proxy-headers=xforwarded
+{% if keycloak_enable_ssl | default(true) | bool %}
+proxy=edge
+{% else %}
+proxy=edge
+{% endif %}
+
+# Database configuration
+db={{ keycloak_db_vendor }}
+db-url-host={{ db_endpoint }}
+db-url-port={{ keycloak_db_port }}
+db-url-database={{ db_name }}
+db-username={{ db_username }}
+db-password={{ db_password }}
+db-pool-initial-size=5
+db-pool-min-size=5
+db-pool-max-size=20
+
+# Logging
+log-level=INFO
+log-console-output=default
+log-file={{ keycloak_log_dir }}/keycloak.log
+
+# Health
+health-enabled=true
+
+# Metrics
+metrics-enabled=true
+spi-login-protocol-openid-connect-ssl-required={{ keycloak_ssl_required }}
+
+# HTTP
+http-relative-path=/

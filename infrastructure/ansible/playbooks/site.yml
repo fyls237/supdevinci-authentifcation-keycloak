@@ -1,0 +1,24 @@
+- name: Deploy Keycloak Infrastructure
+  hosts: keycloak
+  gather_facts: true
+  become: true
+ 
+
+  pre_tasks:
+    - name: Display target host information
+      ansible.builtin.debug:
+        msg: |
+          Deploying to: {{ inventory_hostname }}
+          Public IP: {{ ansible_host }}
+          Private IP: {{ ansible_default_ipv4.address | default('N/A') }}
+      tags: always
+
+    - name: Wait for system to be ready
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+      tags: always
+
+  roles:
+    - role: keycloak
+      tags:
+        - keycloak

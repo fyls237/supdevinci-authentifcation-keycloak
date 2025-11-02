@@ -1,0 +1,13 @@
+---
+- name: Configure Keycloak
+  hosts: tag_name_keycloak_prod_keycloak_ec2
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Include Keycloak configuration
+      ansible.builtin.include_role:
+        name: keycloak
+        tasks_from: configure
+      tags:
+        - configure

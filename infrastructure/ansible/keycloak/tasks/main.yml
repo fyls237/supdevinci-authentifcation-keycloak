@@ -1,0 +1,29 @@
+---
+- name: Include prerequisites tasks
+  include_tasks: prerequisites.yml
+  tags:
+    - prerequisites
+    - install
+
+- name: Include database setup tasks
+  include_tasks: database.yml
+  tags:
+    - database
+    - install
+
+- name: Include installation tasks
+  include_tasks: install.yml
+  tags:
+    - install
+
+- name: Include SSL configuration tasks
+  include_tasks: ssl.yml
+  when: keycloak_enable_ssl | default(true) | bool
+  tags:
+    - ssl
+    - configure
+
+- name: Include configuration tasks
+  include_tasks: configure.yml
+  tags:
+    - configure
