@@ -1,0 +1,12 @@
+---
+# defaults file for keycloak
+keycloak_version: "26.4.0"
+keycloak_install_dir: /opt/keycloak
+keycloak_service_user: keycloak
+keycloak_service_group: keycloak
+
+java_package: java-17-amazon-corretto-devel
+
+# Database defaults
+keycloak_db_vendor: postgres
+keycloak_db_port: 5432

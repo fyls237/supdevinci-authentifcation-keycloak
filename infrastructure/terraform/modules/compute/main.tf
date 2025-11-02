@@ -54,12 +54,18 @@ resource "aws_security_group" "keycloak_sg" {
   }
 }
 
+resource "aws_key_pair" "key_pair" {
+  key_name   = "${var.name_prefix}-keypair"
+  public_key = "${var.public_key}"
+}
+
 resource "aws_instance" "keycloak" {
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux_2023.id
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   vpc_security_group_ids = [aws_security_group.keycloak_sg.id]
   user_data              = var.user_data
+  key_name               = aws_key_pair.key_pair.key_name
   
   root_block_device {
     volume_size           = 30

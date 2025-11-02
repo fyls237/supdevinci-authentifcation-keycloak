@@ -13,7 +13,6 @@ resource "random_string" "db_username" {
 }
 
 
-
 module "network_keycloak" {
   source = "./modules/network"
 
@@ -47,6 +46,7 @@ module "compute_keycloak" {
   instance_type  = var.keycloak_instance_type
   user_data      = var.keycloak_user_data
   allowed_cidrs  = var.allowed_cidrs
+  public_key     = var.public_key
 
   tags = var.tags
   
@@ -70,16 +70,17 @@ module "db_credentials" {
 module "db_keycloak" {
   source = "./modules/db"
 
-  name_prefix = var.name_prefix
-  region = var.region
-  private_subnet_ids = module.network_keycloak.private_subnet_ids
-  vpc_id = module.network_keycloak.vpc_id
-  allowed_cidrs = module.compute_keycloak.instance_private_ip != null ? ["${module.compute_keycloak.instance_private_ip}/32"] : ["0.0.0.0/0"]
-  db_password = random_password.db_password.result
-  db_username = local.db_username
-  db_name     = var.db_name
+  name_prefix            = var.name_prefix
+  region                 = var.region
+  private_subnet_ids     = module.network_keycloak.private_subnet_ids
+  vpc_id                 = module.network_keycloak.vpc_id
+  ec2_security_group_id  = module.compute_keycloak.security_group_id
+  allowed_cidrs          = var.allowed_cidrs # Pas besoin de CIDR, on utilise le Security Group
+  db_password            = random_password.db_password.result
+  db_username            = local.db_username
+  db_name                = var.db_name
 
   tags = var.tags
 
-  depends_on = [module.db_credentials]
+  depends_on = [module.db_credentials, module.compute_keycloak]
 }

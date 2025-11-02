@@ -45,3 +45,8 @@ variable "user_data" {
   type        = string
   default     = ""
 }
+
+variable "public_key" {
+  description = "Public key pair for the EC2 instance"
+  type        = string
+}

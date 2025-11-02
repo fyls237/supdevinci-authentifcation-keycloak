@@ -1,0 +1,17 @@
+# AWS Configuration
+aws_region: eu-north-1
+aws_profile: loicsteve
+
+# General Configuration
+project_name: keycloak-prod
+deployment_environment: production
+
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+ansible_python_interpreter: /usr/bin/python3
+
+terraform_dir: "{{ playbook_dir }}/../../terraform"
+
+resource_tags:
+  Project: "Keycloak Deployment"
+  Environment: "production"
+  ManagedBy: "Ansible"

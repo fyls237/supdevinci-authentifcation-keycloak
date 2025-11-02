@@ -1,0 +1,23 @@
+[Unit]
+Description=Keycloak Application Server
+After=network.target postgresql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User={{ keycloak_service_user }}
+Group={{ keycloak_service_group }}
+Environment="KEYCLOAK_ADMIN={{ keycloak_admin_user }}"
+Environment="KEYCLOAK_ADMIN_PASSWORD={{ keycloak_admin_password }}"
+Environment="JAVA_OPTS={{ keycloak_java_opts }}"
+WorkingDirectory={{ keycloak_install_dir }}
+ExecStart={{ keycloak_install_dir }}/bin/kc.sh start
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=keycloak
+SuccessExitStatus=0 143
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

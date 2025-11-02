@@ -1,0 +1,31 @@
+# Basic settings
+http-enabled=true
+http-port={{ keycloak_http_port }}
+https-port={{ keycloak_https_port }}
+hostname={{ keycloak_hostname }}
+hostname-strict={{ keycloak_hostname_strict | lower }}
+
+# Database configuration
+db={{ keycloak_db_vendor }}
+db-url-host={{ db_endpoint }}
+db-url-port={{ keycloak_db_port }}
+db-url-database={{ db_name }}
+db-username={{ db_username }}
+db-password={{ db_password }}
+db-pool-initial-size=5
+db-pool-min-size=5
+db-pool-max-size=20
+
+# Logging
+log-level=INFO
+log-console-output=default
+log-file={{ keycloak_log_dir }}/keycloak.log
+
+# Health
+health-enabled=true
+
+# Metrics
+metrics-enabled=true
+
+# HTTP
+http-relative-path=/

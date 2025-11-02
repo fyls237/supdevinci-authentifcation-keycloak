@@ -73,3 +73,8 @@ variable "profile" {
   description = "Profile name to use for AWS provider"
   type        = string
 }
+
+variable "public_key" {
+  description = "Public key pair for the EC2 instance"
+  type        = string
+}

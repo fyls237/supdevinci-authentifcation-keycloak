@@ -99,6 +99,12 @@ variable "skip_final_snapshot" {
 variable "allowed_cidrs" {
   description = "List of allowed CIDR blocks"
   type        = list(string)
+  default     = []
+}
+
+variable "ec2_security_group_id" {
+  description = "Security Group ID of the EC2 instance to allow database access"
+  type        = string
 }
 
 variable "max_connections" {

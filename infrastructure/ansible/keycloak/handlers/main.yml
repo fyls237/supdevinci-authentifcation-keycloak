@@ -1,0 +1,12 @@
+---
+- name: restart keycloak
+  ansible.builtin.systemd:
+    name: keycloak
+    state: restarted
+  listen: restart keycloak
+
+- name: reload keycloak
+  ansible.builtin.systemd:
+    name: keycloak
+    state: reloaded
+  listen: reload keycloak

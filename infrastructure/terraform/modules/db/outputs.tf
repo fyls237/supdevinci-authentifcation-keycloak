@@ -30,3 +30,17 @@ output "db_instance_username" {
   sensitive   = true
 }
 
+output "rds_endpoint" {
+  description = "The endpoint of the RDS instance"
+  value       = aws_db_instance.db.endpoint
+}
+
+output "db_name" {
+  description = "The name of the database"
+  value       = aws_db_instance.db.db_name
+}
+
+output "db_port" {
+  description = "The port of the database"
+  value       = aws_db_instance.db.port
+}

@@ -1,0 +1,100 @@
+---
+- name: Get secret name from Terraform
+  ansible.builtin.shell: |
+    cd {{ terraform_dir }}
+    terraform output -raw db_credentials_secret_name
+  register: terraform_secret_name
+  delegate_to: localhost  # Exécuté sur votre VM Azure
+  become: false
+  changed_when: false
+  tags: database
+
+- name: Get database credentials from AWS Secrets Manager (via AWS CLI)
+  ansible.builtin.shell: |
+    aws secretsmanager get-secret-value \
+      --secret-id "{{ terraform_secret_name.stdout }}" \
+      --region "{{ aws_region }}" \
+      --profile "{{ aws_profile }}" \
+      --query 'SecretString' \
+      --output text
+  register: db_credentials_raw
+  delegate_to: localhost  # Exécuté sur votre VM Azure avec AWS CLI
+  become: false
+  changed_when: false
+  no_log: true
+  tags: database
+  environment:
+    AWS_PROFILE: "{{ aws_profile }}"
+    AWS_REGION: "{{ aws_region }}"
+
+- name: Parse database credentials
+  ansible.builtin.set_fact:
+    db_username: "{{ (db_credentials_raw.stdout | from_json).username }}"
+    db_password: "{{ (db_credentials_raw.stdout | from_json).password }}"
+  no_log: true
+  tags: database
+
+- name: Get RDS endpoint from Terraform output
+  ansible.builtin.shell: |
+    cd {{ terraform_dir }}
+    terraform output -raw rds_endpoint
+  register: terraform_db_endpoint_raw
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  tags: database
+
+- name: Parse RDS endpoint
+  ansible.builtin.set_fact:
+    db_endpoint: "{{ terraform_db_endpoint_raw.stdout.split(':')[0] }}"
+    db_port: "{{ terraform_db_endpoint_raw.stdout.split(':')[1] if ':' in terraform_db_endpoint_raw.stdout else '5432' }}"
+  tags: database
+
+- name: Get database name from Terraform output
+  ansible.builtin.shell: |
+    cd {{ terraform_dir }}
+    terraform output -raw db_name
+  register: terraform_db_name
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  tags: database
+
+- name: Set database name fact
+  ansible.builtin.set_fact:
+    db_name: "{{ terraform_db_name.stdout }}"
+  tags: database
+
+- name: Display database connection info
+  ansible.builtin.debug:
+    msg: |
+      Database Host: {{ db_endpoint }}
+      Database Port: {{ db_port }}
+      Database Name: {{ db_name }}
+      Database User: {{ db_username }}
+  tags: database
+
+- name: Test database connectivity from EC2
+  ansible.builtin.shell: |
+    PGPASSWORD="{{ db_password }}" psql \
+      -h "{{ db_endpoint }}" \
+      -p "{{ db_port }}" \
+      -U "{{ db_username }}" \
+      -d "{{ db_name }}" \
+      -c "SELECT version();"
+  register: db_test
+  changed_when: false
+  failed_when: false
+  no_log: true
+  tags: database
+
+- name: Display database connection status
+  ansible.builtin.debug:
+    msg: "{{ '✅ Successfully connected to PostgreSQL database' if db_test.rc == 0 else '❌ Failed to connect to database' }}"
+  tags: database
+
+- name: Fail if database connection failed
+  ansible.builtin.fail:
+    msg: "Cannot connect to database. Please check RDS status and security groups."
+  when: db_test.rc != 0
+  tags: database
