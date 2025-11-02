@@ -1,15 +1,25 @@
-provider "aws" {
-  region = var.region
-}
-
 resource "aws_vpc" "vpc" {
-  cidr_block = var.vpc_cidr
-  tags       = var.tags
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-vpc"
+    }
+  )
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
-  tags   = var.tags
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-igw"
+    }
+  )
 }
 
 resource "aws_subnet" "public" {
@@ -18,7 +28,15 @@ resource "aws_subnet" "public" {
   cidr_block              = var.public_subnet_cidrs[count.index]
   availability_zone       = element(var.azs, count.index)
   map_public_ip_on_launch = true
-  tags                    = merge(var.tags, { Name = "${var.name_prefix}-public-${count.index}" })
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-public-subnet-${count.index + 1}"
+      Tier = "Public"
+      AZ   = element(var.azs, count.index)
+    }
+  )
 }
 
 resource "aws_subnet" "private" {
@@ -26,26 +44,59 @@ resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = element(var.azs, count.index)
-  tags              = merge(var.tags, { Name = "${var.name_prefix}-private-${count.index}" })
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-private-subnet-${count.index + 1}"
+      Tier = "Private"
+      AZ   = element(var.azs, count.index)
+    }
+  )
 }
 
 resource "aws_eip" "nat" {
   domain = "vpc"
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-nat-eip"
+    }
+  )
+  
+  depends_on = [aws_internet_gateway.internet_gateway]
 }
 
 resource "aws_nat_gateway" "igw" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
-  tags          = var.tags
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-nat-gateway"
+    }
+  )
+  
+  depends_on = [aws_internet_gateway.internet_gateway]
 }
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
+  
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
-  tags = var.tags
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-public-rt"
+      Tier = "Public"
+    }
+  )
 }
 
 resource "aws_route_table_association" "public" {
@@ -56,11 +107,19 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
+  
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.igw.id
   }
-  tags = var.tags
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-private-rt"
+      Tier = "Private"
+    }
+  )
 }
 
 resource "aws_route_table_association" "private" {

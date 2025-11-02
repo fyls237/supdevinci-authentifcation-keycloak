@@ -39,18 +39,24 @@ variable "db_engine" {
 variable "db_engine_version" {
   description = "Database engine version"
   type        = string
-  default     = "13.7"
+  default     = "14.19"
+}
+
+variable "db_parameter_group_family" {
+  description = "Database parameter group family"
+  type        = string
+  default     = "postgres14"
 }
 
 variable "db_name" {
   description = "Initial database name"
   type        = string
-  default     = "appdb"
 }
 
 variable "db_username" {
   description = "Master username"
   type        = string
+  sensitive   = true
 }
 
 variable "db_password" {

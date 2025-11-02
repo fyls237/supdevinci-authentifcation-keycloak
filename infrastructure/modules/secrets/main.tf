@@ -19,6 +19,14 @@ resource "aws_secretsmanager_secret_version" "secret" {
 
   secret_id     = aws_secretsmanager_secret.secret.id
   secret_string = var.secret_json != "" ? var.secret_json : var.secret_string
+
+  lifecycle {
+    create_before_destroy = true
+
+    ignore_changes = [ 
+      version_stages,
+    ]
+  }
 }
 
 # Secret Rotation (optional)
