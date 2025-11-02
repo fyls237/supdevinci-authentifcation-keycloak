@@ -16,6 +16,13 @@
   tags:
     - install
 
+- name: Include SSL configuration tasks
+  include_tasks: ssl.yml
+  when: keycloak_enable_ssl | default(true) | bool
+  tags:
+    - ssl
+    - configure
+
 - name: Include configuration tasks
   include_tasks: configure.yml
   tags:

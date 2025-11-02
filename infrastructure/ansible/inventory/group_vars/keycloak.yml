@@ -12,7 +12,8 @@ keycloak_service_group: keycloak
 keycloak_http_port: 8080
 keycloak_https_port: 8443
 keycloak_management_port: 9990
-
+keycloak_https_required: false
+keycloak_ssl_required: false
 
 keycloak_admin_user: admin
 keycloak_admin_password: "{{ lookup('env', 'KEYCLOAK_ADMIN_PASSWORD') | default('ChangeMe123!', true) }}"
@@ -26,6 +27,10 @@ keycloak_db_password: "{{ db_password }}"
 
 keycloak_java_opts: "-Xms512m -Xmx2048m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m"
 
+# Hostname configuration
+keycloak_hostname: "{{ ansible_host }}"
+keycloak_hostname_strict: true
 
-keycloak_hostname: "{{ ansible_host}}"
-keycloak_hostname_strict: false
+# SSL Configuration
+keycloak_enable_ssl: true
+keycloak_keystore_password: "{{ lookup('env', 'KEYCLOAK_KEYSTORE_PASSWORD') | default('KeystoreSecure123!', true) }}"

@@ -10,3 +10,5 @@ java_package: java-17-amazon-corretto-devel
 # Database defaults
 keycloak_db_vendor: postgres
 keycloak_db_port: 5432
+keycloak_https_required: false
+keycloak_ssl_required: false

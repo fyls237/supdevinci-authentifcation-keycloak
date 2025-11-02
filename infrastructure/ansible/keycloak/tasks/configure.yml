@@ -9,10 +9,16 @@
   notify: restart keycloak
   tags: configure
 
-- name: Build Keycloak with database configuration
+- name: Build Keycloak with database and SSL configuration
   ansible.builtin.shell: |
+    {% if keycloak_enable_ssl | default(true) | bool %}
+    sudo -u {{ keycloak_service_user }} {{ keycloak_install_dir }}/bin/kc.sh build \
+      --db={{ keycloak_db_vendor }} \
+      --https-key-store-file={{ keycloak_install_dir }}/conf/ssl/keycloak.p12
+    {% else %}
     sudo -u {{ keycloak_service_user }} {{ keycloak_install_dir }}/bin/kc.sh build \
       --db={{ keycloak_db_vendor }}
+    {% endif %}
   become: true
   args:
     chdir: "{{ keycloak_install_dir }}"
@@ -40,11 +46,39 @@
 
 - name: Wait for Keycloak to be ready
   ansible.builtin.uri:
-    url: "http://{{ keycloak_hostname }}:{{ keycloak_http_port }}"
+    url: "{% if keycloak_enable_ssl | default(true) | bool %}https{% else %}http{% endif %}://localhost:{% if keycloak_enable_ssl | default(true) | bool %}{{ keycloak_https_port }}{% else %}{{ keycloak_http_port }}{% endif %}/health/ready"
     method: GET
     status_code: 200
+    validate_certs: no
   register: result
   until: result.status == 200
   retries: 30
   delay: 10
+  tags: configure
+
+- name: Display Keycloak access information
+  ansible.builtin.debug:
+    msg: |
+      ========================================
+      ✅ Keycloak is ready!
+      ========================================
+      
+      Access URLs:
+      {% if keycloak_enable_ssl | default(true) | bool %}
+        - HTTPS: https://{{ keycloak_hostname }}:{{ keycloak_https_port }}/
+        - Admin Console: https://{{ keycloak_hostname }}:{{ keycloak_https_port }}/admin
+        - HTTP (redirect): http://{{ keycloak_hostname }}:{{ keycloak_http_port }}/
+      {% else %}
+        - HTTP: http://{{ keycloak_hostname }}:{{ keycloak_http_port }}/
+        - Admin Console: http://{{ keycloak_hostname }}:{{ keycloak_http_port }}/admin
+      {% endif %}
+      
+      Credentials:
+        - Username: {{ keycloak_admin_user }}
+        - Password: {{ keycloak_admin_password }}
+      
+      {% if keycloak_enable_ssl | default(true) | bool %}
+      ⚠️  SSL Certificate: Self-signed (accept in browser)
+      {% endif %}
+      ========================================
   tags: configure

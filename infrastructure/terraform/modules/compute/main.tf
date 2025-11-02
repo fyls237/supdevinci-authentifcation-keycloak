@@ -40,6 +40,22 @@ resource "aws_security_group" "keycloak_sg" {
     protocol    = "tcp"
     cidr_blocks = var.allowed_cidrs
   }
+  
+  ingress {
+    description = "Keycloak HTTPS"
+    from_port   = 8443
+    to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_cidrs
+  }
+
+  ingress {
+    description = "Keycloak Admin Console"
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_cidrs
+  }
 
   egress {
     description = "Allow all outbound"

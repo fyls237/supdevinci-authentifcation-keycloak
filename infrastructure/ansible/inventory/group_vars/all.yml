@@ -15,3 +15,5 @@ resource_tags:
   Project: "Keycloak Deployment"
   Environment: "production"
   ManagedBy: "Ansible"
+keycloak_https_required: false
+keycloak_ssl_required: false
