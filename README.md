@@ -4,11 +4,14 @@ Federate authentication multicloud AWS and Azure with Keycloak.
 
 ## Table of Contents
 
-- [`docs/architecture_hld.md`](docs/architecture_hld.md:1)
-- [`docs/architecture_lld.md`](docs/architecture_lld.md:1)
+- [Architecture Overview](docs/ARCHITECTURE.md) 📊 **Nouveau : Schéma d'architecture complet**
+- [`docs/architecture_hld.md`](docs/architecture_hld.md)
+- [`docs/architecture_lld.md`](docs/architecture_lld.md)
 - Infrastructure (#infrastructure)
-  - [`docs/infra_terraform_configuration.md`](docs/infra_terraform_configuration.md:1)
-  - [`docs/infra_ansible_configuration.md`](docs/infra_ansible_configuration.md:1)
+  - [`docs/infra_terraform_configuration.md`](docs/infra_terraform_configuration.md)
+  - [`docs/infra_ansible_configuration.md`](docs/infra_ansible_configuration.md)
+- [Deployment Success Report](DEPLOYMENT_SUCCESS.md) ✅
+- [Troubleshooting Guide](TROUBLESHOOTING.md) 🔧
 
 ## Infrastructure
 
